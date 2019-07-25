@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% block title %}
+    Search for Book
+{% endblock %}
+
+{% block body %}
+	{% if error!='' %}
+	<p style="font-size:2em; font-weight:bold; color:red">No matching results.</p>
+	{% endif %}
+	<h1>Search for book(s)</h1>
+	<h2>Basic Search</h2>
+	<form name="basic_search" action="{{ url_for('basicSearch') }}"  method='post'>
+	    <select name="searchUsing">
+	        <option value="Title">Title</option>
+	        <option value="Author">Author</option>
+	        <option value="ISBN">ISBN</option>        
+	    </select>
+        <input type="Text" class="form-control" name="value" placeholder="Enter Search">
+	    <button type="submit">Search</button>
+	</form>
+	<h2>Advanced Search</h2>
+	<form name="advanced_search" action="{{ url_for('advancedSearch') }}"  method='post'>
+		<div class="form-group">
+			<label for="selection">Include</label>
+			<select id="selection" name="any_all">
+				<option value="Any">Any</option>
+				<option value="All">All</option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="Title">Title</label>
+			<input type="text" class="form-control" name="title" id="Title">
+		</div>
+		<div class="form-group">
+			<label for="Author">Author</label>
+			<input type="text" class="form-control" name="author" id="Author">
+		</div>
+		<div class="form-group">
+			<label for="ISBN">ISBN</label>
+			<input type="text" class="form-control" name="isbn" id="ISBN">
+		</div>
+	    <button type="submit">Search</button>		
+	</form>
+
+{% endblock %}

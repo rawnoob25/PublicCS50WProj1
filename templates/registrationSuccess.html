@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Successfully registered
+{% endblock %}
+
+{% block body %}
+    <p>Successfully registered for RawBookReviews, as {{uname}}. Click to return to login page.</p>
+
+    <form action="{{ url_for('index') }}" method="post">
+        <div class="form-group">
+            <button class="btn btn-primary">Go Back to Login Page</button>
+        </div>
+
+    </form>
+{% endblock %}

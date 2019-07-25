@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    RawBookReviews
+{% endblock %}
+
+{% block body %}
+    <h1>Login to RawBookReviews</h1>
+    {% if error == 'Incorrect Password' %}
+        <p style="font-size:2em; font-weight: bold;">Incorrect Password.</p>
+    {% elif error == 'Username does not exist.' %}
+        <p style="font-size:2em; font-weight: bold;">Username does not exist.</p>
+    {% endif %}
+    <form action="{{ url_for('validateLogin') }}" method="post">
+
+        <div class="form-group">
+            <input type="text" class="form-control" name="username" placeholder="Username">
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control" name="pw" placeholder="Password">
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary">Login</button>
+        </div>
+    </form>
+
+    <h2>No account? Click to register for one.</h2>
+
+    <form action="{{url_for('register') }}" method="post">
+        <div class="form-group">
+            <button class="btn btn-primary">Register for Account</button>
+        </div>
+    </form>
+
+    <h2>Want to delete your account? Click below.</h2>
+
+    <form action="{{url_for('deleteAcct') }}" method="post">
+        <div class="form-group">
+            <button class="btn btn-primary">Delete account</button>
+        </div>
+    </form>
+{% endblock %}

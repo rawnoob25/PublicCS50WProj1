@@ -1,0 +1,4 @@
+__pycache__/
+flask_session/
+**/*.csv
+ErrorLog7_5_2019.txt
