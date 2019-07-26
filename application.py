@@ -5,6 +5,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 import requests
 import re
+from flask import abort
+from flask import jsonify
 
 app = Flask(__name__)
 
@@ -211,12 +213,24 @@ def advancedSearch():
 			books = db.execute("SELECT * FROM books WHERE title = :title AND author = :author  AND isbn = :isbn", {"title": tit, "author": aut, "isbn":isb}).fetchall()
 			return render_template("searchResults.html", books = books)
 
-@app.route("/search/<isbn>")
+@app.route("/search/<isbn>", methods=["GET"])
 def bookInfo(isbn):
 	book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
 	if book is None:
 		return render_template("search.html", error="noMatch")
-	return render_template("bookInfo.html", book=book)
+	res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "0HyXLM8Pi1U9HWe7774AIQ", "isbns": isbn})
+	ratingsCt = -1
+	avgRating = -1
+	try:
+		obj = res.json()
+		if obj is not None:
+			ratingsCt = ((obj['books'])[0])['ratings_count']
+			avgRating = ((obj['books'])[0])['average_rating']
+	except:
+		pass
+	# ratingsCt = ((obj['books'])[0])['ratings_count']
+	# avgRating = ((obj['books'])[0])['average_rating']
+	return render_template("bookInfo.html", book=book, ratingsCt=ratingsCt, avgRating=avgRating)
     # # Make sure flight exists.
     # flight = db.execute("SELECT * FROM flights WHERE id = :id", {"id": flight_id}).fetchone()
     # if flight is None:
@@ -226,3 +240,48 @@ def bookInfo(isbn):
     # passengers = db.execute("SELECT name FROM passengers WHERE flight_id = :flight_id",
     #                         {"flight_id": flight_id}).fetchall()
     # return render_template("flight.html", flight=flight, passengers=passengers)
+
+@app.route("/api/<isbn>", methods=["GET"])
+def displayJSON(isbn):
+	if db.execute("SELECT title FROM books WHERE isbn = :isbn", {"isbn": isbn}).rowcount == 0:
+		abort(404)
+	res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "0HyXLM8Pi1U9HWe7774AIQ", "isbns": isbn})
+	obj = res.json()
+	item = (obj['books'])[0]
+	book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone() #type(book) is class 'sqlalchemy.engine.result.RowProxy', which functions as a tuple that can be indexed by columns in the table
+	title = book['title']
+	author = book['author']
+	year = book['year']
+	isbn = book['isbn']
+	ratings_count = item['ratings_count']
+	average_score = item['average_rating']
+	d = {"title": title, 
+		"author": author, 
+		"year": year, 
+		"isbn": isbn, 
+		"ratings_count": ratings_count,
+		"average_score": average_score}
+	# message = {'status':200, 'message':'OK','scores':d}
+	resp = jsonify(d)
+	resp.status_code = 200
+	return resp
+	# 	
+#{
+#     "title": "Memory",
+#     "author": "Doug Lloyd",
+#     "year": 2015,
+#     "isbn": "1632168146",
+#     "review_count": 28,
+#     "average_score": 5.0
+# } 
+
+#d = {'left': 0.17037454, 'right': 0.82339555, '_unknown_': 0.0059609693}
+#	message = {
+ #                            'status': 200,
+ #                            'message': 'OK',
+ #                            'scores': d 
+ #                        }
+ #                resp = jsonify(message)
+ #                resp.status_code = 200
+ #                print(resp)
+ #                return resp
