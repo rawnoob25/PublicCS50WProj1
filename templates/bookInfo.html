@@ -1,15 +1,80 @@
-{% extends "layout.html" %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Book Info</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <style>
+            ul {
+                list-style-type: none;
+                width:50%;
+                background-color: #f1f1f1;
+            }
 
-{% block title %}
-    Book Information
-{% endblock %}
+            ul>li {
+                border-bottom:1px solid black;
+            }
+/*            li a {
+              display: block;
+              color: #000;
+              padding: 8px 16px;
+              text-decoration: none;
+            }
+            li a:hover {
+              background-color: #555;
+              color: white;
+            }     */                   
+        </style>
+    </head>
+    <body>
+        <div class="container">
+		    <p>Title: {{book.title}}</p>
+		    <p>Author: {{book.author}}</p>
+		    <p>Year: {{book.year}}</p>
+		    <p>ISBN: {{book.isbn}}</p>
+		    {% if avgRating != -1 or ratingsCt != -1 %}
+		    	<p>Rated {{avgRating}} by {{ratingsCt}} reviewers on goodreads. </p>
+		    {% endif %}
+		    
+		    {% if reviews =="" %}
+		    	<p>No Reviews</p>
+		    {% else %}
+		    	<p style = "font-weight:bold; font-size: 2em;">Average User Rating: {{avgUserRating}}</p>
+			    <ul>
+			    	{% for r in reviews %}
+						<li>	    	
+				    		<h3>Reviewed By: {{r.username}}</h3>
+				    		<p>{{r.review}}</p>
+				    	</li>
+			    	{% endfor %}
+			    </ul>
+		    {% endif %}
 
-{% block body %}
-    <p>Title: {{book.title}}</p>
-    <p>Author: {{book.author}}</p>
-    <p>Year: {{book.year}}</p>
-    <p>ISBN: {{book.isbn}}</p>
-    {% if avgRating != -1 or ratingsCt != -1 %}
-    	<p>Rated {{avgRating}} by {{ratingsCt}} reviewers on goodreads. </p>
-    {% endif %}
-{% endblock %}
+		    {% if not userLeftReview %}
+		    	<!-- display dropdown, textbox, and submit button -->
+		    	<p style = "font-weight:bold; font-size: 2em;">Rate book (in stars) and leave review below.</p>
+				<form name="leave_review" action="{{ url_for('leaveReview', isbn=book.isbn, username=user) }}"  method='post'>
+					<div class="form-group">
+					    <select name="rating">
+					        <option value="1">1</option>
+					        <option value="2">2</option>
+					        <option value="3">3</option>
+					        <option value="4">4</option>
+					        <option value="5">5</option>        
+					    </select>
+					</div>
+					<div class="form-group">
+			        	<textarea name="review"></textarea>
+			        </div>
+				    <button type="submit">Leave Rating and Review</button>
+				</form>		    	
+		    {% endif %}
+		    <h2>Go back to search page.</h2>
+		    <form action="{{ url_for('search') }}" method="post">
+		        <div class="form-group">
+		            <button class="btn btn-primary">Go to search Page.</button>
+		        </div>
+		    </form>
+        </div>
+    </body>
+</html>
+

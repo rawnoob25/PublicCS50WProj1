@@ -50,11 +50,16 @@ def validateLogin():
 	# 	return render_template("index.html", error = error)
 	# return render_template("search.html")
 	if isOKLogin(uname,pw) == "ok":
-		return render_template("search.html",error="")
+		session["login"] = uname
+		return render_template("loginSuccess.html")
 	elif isOKLogin(uname,pw) =="pwWrong":
 		return render_template("index.html", error="Incorrect Password")
 	else: #isOKLogin(uname,pw)=="unameDNE"
 		return render_template("index.html", error="Username does not exist.")
+
+@app.route("/search", methods=["POST"])
+def search():
+	return render_template("search.html", error='')
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -228,9 +233,32 @@ def bookInfo(isbn):
 			avgRating = ((obj['books'])[0])['average_rating']
 	except:
 		pass
+
+	
+	reviews = db.execute("SELECT review, username FROM reviews WHERE isbn = :isbn", {"isbn" : isbn}).fetchall()
+	print(reviews)
+	print(type(reviews))
+	if reviews != None and reviews!=[]:
+		ratings = db.execute("SELECT rating FROM reviews WHERE isbn = :isbn", {"isbn" : isbn}).fetchall()
+		ratings = [x[0] for x in ratings]
+		print("reviews: "+str(reviews))
+		print("type(reviews): "+str(type(reviews)))
+		print("ratings: "+str(ratings))
+		print("type(ratings): "+str(type(ratings)))
+		avgUserRating = sum(ratings)/len(ratings)
+	else:
+		ratings = ""
+		reviews=""
+		avgUserRating = -1
+
+	userLeftReview = False
+	if db.execute("SELECT * FROM reviews WHERE isbn = :isbn AND username = :username", {"isbn" : isbn, "username":session["login"]}).rowcount > 0:
+		userLeftReview = True
+
+	user = session["login"]
 	# ratingsCt = ((obj['books'])[0])['ratings_count']
 	# avgRating = ((obj['books'])[0])['average_rating']
-	return render_template("bookInfo.html", book=book, ratingsCt=ratingsCt, avgRating=avgRating)
+	return render_template("bookInfo.html", book=book, ratingsCt=ratingsCt, avgRating=avgRating, reviews=reviews, avgUserRating=avgUserRating, userLeftReview=userLeftReview, user = user)
     # # Make sure flight exists.
     # flight = db.execute("SELECT * FROM flights WHERE id = :id", {"id": flight_id}).fetchone()
     # if flight is None:
@@ -240,6 +268,14 @@ def bookInfo(isbn):
     # passengers = db.execute("SELECT name FROM passengers WHERE flight_id = :flight_id",
     #                         {"flight_id": flight_id}).fetchall()
     # return render_template("flight.html", flight=flight, passengers=passengers)
+
+@app.route("/reviewAdded/<isbn>/<username>", methods=["POST"])
+def leaveReview(isbn, username):
+	theRating = int(request.form['rating'])
+	theReview = request.form['review']
+	db.execute("INSERT INTO reviews (isbn, username, rating, review) VALUES (:isbn, :username, :rating, :review)", {"isbn":isbn, "username":username, "rating":theRating, "review":theReview})
+	db.commit()
+	return render_template("reviewAdded.html")
 
 @app.route("/api/<isbn>", methods=["GET"])
 def displayJSON(isbn):

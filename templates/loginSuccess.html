@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    RawBookReviews Review Added
+{% endblock %}
+
+{% block body %}
+   <h2>Successfully logged in.</h2>
+    <form action="{{ url_for('search') }}" method="post">
+        <div class="form-group">
+            <button class="btn btn-primary">Go to search Page.</button>
+        </div>
+    </form>
+{% endblock %}
