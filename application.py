@@ -7,6 +7,8 @@ import requests
 import re
 from flask import abort
 from flask import jsonify
+from werkzeug.exceptions import BadRequest
+
 
 app = Flask(__name__)
 
@@ -27,6 +29,8 @@ db = scoped_session(sessionmaker(bind=engine))
 @app.route("/", methods=["GET","POST"])
 def index():
 	error = False
+	session["login"] = ''
+
 	return render_template("index.html", error = error)
 
 #update later
@@ -51,15 +55,20 @@ def validateLogin():
 	# return render_template("search.html")
 	if isOKLogin(uname,pw) == "ok":
 		session["login"] = uname
-		return render_template("loginSuccess.html")
+		user = session["login"]
+		return render_template("loginSuccess.html", user=user)
 	elif isOKLogin(uname,pw) =="pwWrong":
 		return render_template("index.html", error="Incorrect Password")
 	else: #isOKLogin(uname,pw)=="unameDNE"
 		return render_template("index.html", error="Username does not exist.")
 
-@app.route("/search", methods=["POST"])
+@app.route("/search", methods=["POST","GET"])
 def search():
-	return render_template("search.html", error='')
+	user = session["login"]
+	if user == '':
+		raise BadRequest("User is seeing invalid view of application")
+
+	return render_template("search.html", error='', user=user)
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -178,51 +187,53 @@ def tryDelete():
 def basicSearch():
 	by = request.form['searchUsing']
 	val = request.form.get("value")
+	user = session['login']
 	# return render_template("searchResults.html", by = by, val = val)
 	if by == "Title":
 		if db.execute("SELECT title FROM books WHERE title = :title", {"title": val}).rowcount == 0:
-			return render_template("search.html", error="noMatch")
+			return render_template("search.html", error="noMatch", user=user)
 		else:
 			books = db.execute("SELECT * FROM books WHERE title = :title", {"title": val}).fetchall()
-			return render_template("searchResults.html", books = books)
+			return render_template("searchResults.html", books = books, user=user)
 	elif by == "Author":
 		if db.execute("SELECT title FROM books WHERE author = :author", {"author": val}).rowcount == 0:
-			return render_template("search.html", error="noMatch")		
+			return render_template("search.html", error="noMatch", user=user)		
 		else: 
 			books = db.execute("SELECT * FROM books WHERE author = :author", {"author": val}).fetchall()
-			return render_template("searchResults.html", books = books)
+			return render_template("searchResults.html", books = books, user=users)
 	else: #by == "IBSN"
 		if db.execute("SELECT title FROM books WHERE isbn = :isbn", {"isbn": val}).rowcount == 0:
-			return render_template("search.html", error="noMatch")	
+			return render_template("search.html", error="noMatch", user=user)	
 		else: 
 			books = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": val}).fetchall()
-			return render_template("searchResults.html", books = books)
+			return render_template("searchResults.html", books = books, user=user)
 
 @app.route("/basicSearchPartial", methods=["POST"])
 def basicSearchPartial():
 	by = request.form['searchUsing']
 	val = request.form.get("value")
 	valPatt = '%'+val+'%'
+	user=session['login']
 	if valPatt == '%%':
 		valPatt = ''	
 	if by == "Title":
 		if db.execute("SELECT title FROM books WHERE title LIKE :title", {"title": valPatt}).rowcount == 0:
-			return render_template("search.html", error="noMatch")
+			return render_template("search.html", error="noMatch", user=user)
 		else:
 			books = db.execute("SELECT * FROM books WHERE title LIKE :title", {"title": valPatt}).fetchall()
-			return render_template("searchResults.html", books = books)
+			return render_template("searchResults.html", books = books, user=user)
 	elif by == "Author":
 		if db.execute("SELECT title FROM books WHERE author LIKE :author", {"author": valPatt}).rowcount == 0:
-			return render_template("search.html", error="noMatch")		
+			return render_template("search.html", error="noMatch", user=user)		
 		else: 
 			books = db.execute("SELECT * FROM books WHERE author LIKE :author", {"author": valPatt}).fetchall()
-			return render_template("searchResults.html", books = books)
+			return render_template("searchResults.html", books = books, user=user)
 	else: #by == "IBSN"
 		if db.execute("SELECT title FROM books WHERE isbn LIKE :isbn", {"isbn": valPatt}).rowcount == 0:
-			return render_template("search.html", error="noMatch")	
+			return render_template("search.html", error="noMatch", user=user)	
 		else: 
 			books = db.execute("SELECT * FROM books WHERE isbn LIKE :isbn", {"isbn": valPatt}).fetchall()
-			return render_template("searchResults.html", books = books)
+			return render_template("searchResults.html", books = books, user=user)
 
 @app.route("/advancedSearch", methods=["POST"])
 def advancedSearch():
@@ -230,22 +241,24 @@ def advancedSearch():
 	tit = request.form.get("title")
 	aut = request.form.get("author")
 	isb = request.form.get("isbn")
+	user = session['login']
 	if any_all == "Any":
 		if db.execute("SELECT title FROM books WHERE title = :title OR author = :author  OR isbn = :isbn", {"title": tit, "author": aut, "isbn":isb}).rowcount == 0:
-			return render_template("search.html", error="noMatch")
+			return render_template("search.html", error="noMatch", user=user)
 		else:
 			books = db.execute("SELECT * FROM books WHERE title = :title OR author = :author  OR isbn = :isbn", {"title": tit, "author": aut, "isbn":isb}).fetchall()
-			return render_template("searchResults.html", books = books)
+			return render_template("searchResults.html", books = books, user=user)
 
 	else: # any_all == "All"
 		if db.execute("SELECT title FROM books WHERE title = :title AND author = :author  AND isbn = :isbn", {"title": tit, "author": aut, "isbn":isb}).rowcount == 0:
-			return render_template("search.html", error="noMatch")
+			return render_template("search.html", error="noMatch", user=user)
 		else:
 			books = db.execute("SELECT * FROM books WHERE title = :title AND author = :author  AND isbn = :isbn", {"title": tit, "author": aut, "isbn":isb}).fetchall()
-			return render_template("searchResults.html", books = books)
+			return render_template("searchResults.html", books = books, user=user)
 
 @app.route("/advancedSearchPartial", methods=["POST"])
 def advancedSearchPartial():
+	user = session['login']
 	any_all = request.form['any_all']
 	tit = request.form.get("title")
 	aut = request.form.get("author")
@@ -262,24 +275,25 @@ def advancedSearchPartial():
 
 	if any_all == "Any":
 		if db.execute("SELECT title FROM books WHERE title LIKE :title OR author LIKE :author  OR isbn LIKE :isbn", {"title": titPatt, "author": autPatt, "isbn": isbPatt}).rowcount == 0:
-			return render_template("search.html", error="noMatch")
+			return render_template("search.html", error="noMatch", user=user)
 		else:
 			books = db.execute("SELECT * FROM books WHERE title LIKE :title OR author LIKE :author  OR isbn LIKE :isbn", {"title": titPatt, "author": autPatt, "isbn": isbPatt}).fetchall()
 			print(books)
-			return render_template("searchResults.html", books = books)
+			return render_template("searchResults.html", books = books, user=user)
 
 	else: # any_all == "All"
 		if db.execute("SELECT title FROM books WHERE title LIKE :title AND author LIKE :author  AND isbn LIKE :isbn", {"title": titPatt, "author": autPatt, "isbn": isbPatt}).rowcount == 0:
-			return render_template("search.html", error="noMatch")
+			return render_template("search.html", error="noMatch", user=user)
 		else:
 			books = db.execute("SELECT * FROM books WHERE title LIKE :title AND author LIKE :author  AND isbn LIKE :isbn", {"title": titPatt, "author": autPatt, "isbn": isbPatt}).fetchall()
-			return render_template("searchResults.html", books = books)
+			return render_template("searchResults.html", books = books, user=user)
 
 @app.route("/search/<isbn>", methods=["GET"])
 def bookInfo(isbn):
+	user = session['login']
 	book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
 	if book is None:
-		return render_template("search.html", error="noMatch")
+		return render_template("search.html", error="noMatch", user=user)
 	res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "0HyXLM8Pi1U9HWe7774AIQ", "isbns": isbn})
 	ratingsCt = -1
 	avgRating = -1
@@ -332,7 +346,8 @@ def leaveReview(isbn, username):
 	theReview = request.form['review']
 	db.execute("INSERT INTO reviews (isbn, username, rating, review) VALUES (:isbn, :username, :rating, :review)", {"isbn":isbn, "username":username, "rating":theRating, "review":theReview})
 	db.commit()
-	return render_template("reviewAdded.html")
+	user = session["login"]
+	return render_template("reviewAdded.html", user=user)
 
 @app.route("/api/<isbn>", methods=["GET"])
 def displayJSON(isbn):

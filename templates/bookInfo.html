@@ -41,11 +41,11 @@
         <div class="container">
 			<div id = 'sidebar'>
 			    <div id = 'logout'>
-			        <p style = "margin:10px;">Logged in as abcdef1</p>
-			        <button class="btn btn-primary aButton">Click to logout</button>
+			        <p style = "margin:10px;">Logged in as {{user}}</p>
+			        <button class="btn btn-primary aButton" type="button" onclick="window.location.href='{{ url_for( 'index') }}';">Click to Logout</button>
 			    </div>
 			    <div id = 'back2Search'>
-			        <button class="btn btn-primary aButton">Go Back to Search</button>
+			        <button class="btn btn-primary aButton" type="button" onclick="window.location.href='{{ url_for( 'search') }}';" method="post">Go Back to Search</button>
 			    </div>
 			</div>
 		    <p>Title: {{book.title}}</p>

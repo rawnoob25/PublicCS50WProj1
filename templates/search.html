@@ -3,6 +3,8 @@
     Search for Book
 {% endblock %}
 
+{% block username %} {{user}}{% endblock %}
+
 {% block body %}
 	{% if error!='' %}
 	<p style="font-size:2em; font-weight:bold; color:red">No matching results.</p>
