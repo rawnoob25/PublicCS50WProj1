@@ -12,4 +12,9 @@
             <button class="btn btn-primary">Go to search Page.</button>
         </div>
     </form>
+    <form action="{{ url_for('showReviews4User') }}" method="post">
+        <div class="form-group">
+            <button class="btn btn-primary">See the reviews that you've left.</button>
+        </div>
+    </form>    
 {% endblock %}

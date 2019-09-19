@@ -62,6 +62,20 @@ def validateLogin():
 	else: #isOKLogin(uname,pw)=="unameDNE"
 		return render_template("index.html", error="Username does not exist.")
 
+@app.route("/showReviews4User", methods=["GET","POST"])
+def showReviews4User():
+	un = session['login']
+	if db.execute("SELECT isbn FROM reviews WHERE username = :username", {"username":un}).rowcount == 0:
+		return render_template("reviews4User.html", reviews="", user=un)
+	else:
+		reviews = db.execute("SELECT title, author, username, review, rating FROM reviews JOIN books ON reviews.isbn=books.isbn WHERE username = :username", {"username":un})
+		return render_template("reviews4User.html", reviews=reviews, user=un)
+# if db.execute("SELECT title FROM books WHERE title = :title OR author = :author  OR isbn = :isbn", {"title": tit, "author": aut, "isbn":isb}).rowcount == 0:
+# 	return render_template("search.html", error="noMatch", user=user)
+# else:
+# 	books = db.execute("SELECT * FROM books WHERE title = :title OR author = :author  OR isbn = :isbn", {"title": tit, "author": aut, "isbn":isb}).fetchall()
+# 	return render_template("searchResults.html", books = books, user=user)	
+
 @app.route("/search", methods=["POST","GET"])
 def search():
 	user = session["login"]

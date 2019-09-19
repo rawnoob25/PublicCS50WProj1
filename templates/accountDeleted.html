@@ -7,6 +7,11 @@
     <body>
         <div class="container">
         	<h2>Account has successfully been deleted.</h2>
+		    <form action="{{ url_for('index') }}" method="post">
+		        <div class="form-group">
+		            <button class="btn btn-primary">Go Back to Login Page</button>
+		        </div>
+		    </form>        	
         </div>
     </body>
 </html>

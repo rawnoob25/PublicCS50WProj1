@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Reviews left by current user</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <style>
+            #sidebar {
+                position: fixed;
+                right: 10px;
+                top: 10px;
+                width: 200px;
+                border: 1px solid black;
+            }
+            #logout {
+                border-bottom: 1px solid black;
+            }
+            .aButton {
+                margin: 10px;
+            }
+            ul {
+                list-style-type: none;
+                width:50%;
+                background-color: #f1f1f1;
+            }
+            ul>li {
+                border-bottom:1px solid black;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div id = 'sidebar'>
+                    <div id = 'logout'>
+                        <p style = "margin:10px;">Logged in as: {{user}}</p>
+                        <button class="btn btn-primary aButton" type="button" onclick="window.location.href='{{ url_for( 'index') }}';">Click to Logout</button>
+                    </div>
+                    <div id = 'back2Search'>
+                        <button class="btn btn-primary aButton" onclick="window.location.href='{{ url_for( 'search') }}';">Go Back to Search</button>
+                    </div>
+            </div>
+			<h2>You have left the following reviews.</h2>
+			{% if reviews == '' %}
+				<p style = "font-weight:bold; font-size: 2em;">You've left no reviews.</p>
+			{% else %}
+				<ul>
+					{% for r in reviews %}
+						<li>	    	
+				    		<p style="font-weight: bold; text-decoration: underline;">Review for {{r.title}} by {{r.author}} left by {{r.username}}</p>
+				    		<p style = "font-weight:bold">Rated: {{r.rating}} star(s)</p>
+				    		<p>{{r.review}}</p>
+				    	</li>
+					{% endfor %}
+				</ul> 
+			{% endif %}           
+        </div>
+    </body>
+</html>
