@@ -9,9 +9,21 @@
                 width:50%;
                 background-color: #f1f1f1;
             }
-
             ul>li {
                 border-bottom:1px solid black;
+            }
+            #sidebar {
+                position: fixed;
+                right: 10px;
+                top: 10px;
+                width: 200px;
+                border: 1px solid black;
+            }
+            #logout {
+                border-bottom: 1px solid black;
+            }
+            .aButton {
+                margin: 10px;
             }
 /*            li a {
               display: block;
@@ -27,6 +39,15 @@
     </head>
     <body>
         <div class="container">
+			<div id = 'sidebar'>
+			    <div id = 'logout'>
+			        <p style = "margin:10px;">Logged in as abcdef1</p>
+			        <button class="btn btn-primary aButton">Click to logout</button>
+			    </div>
+			    <div id = 'back2Search'>
+			        <button class="btn btn-primary aButton">Go Back to Search</button>
+			    </div>
+			</div>
 		    <p>Title: {{book.title}}</p>
 		    <p>Author: {{book.author}}</p>
 		    <p>Year: {{book.year}}</p>

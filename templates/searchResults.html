@@ -15,18 +15,40 @@
             }
             li a {
               display: block;
-              color: #000;
-              padding: 8px 16px;
+              color: #000
+;              padding: 8px 16px;
               text-decoration: none;
             }
             li a:hover {
               background-color: #555;
               color: white;
-            }                        
+            }
+            #sidebar {
+                position: fixed;
+                right: 10px;
+                top: 10px;
+                width: 200px;
+                border: 1px solid black;
+            }
+            #logout {
+                border-bottom: 1px solid black;
+            }
+            .aButton {
+                margin: 10px;
+            }                    
         </style>
     </head>
     <body>
         <div class="container">
+            <div id = 'sidebar'>
+                    <div id = 'logout'>
+                        <p style = "margin:10px;">Logged in as abcdef1</p>
+                        <button class="btn btn-primary aButton">Click to logout</button>
+                    </div>
+                    <div id = 'back2Search'>
+                        <button class="btn btn-primary aButton">Go Back to Search</button>
+                    </div>
+            </div>
             <h2>Matching books</h2>
             <ul>
                 {% for book in books %}

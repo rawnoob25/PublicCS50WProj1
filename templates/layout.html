@@ -3,9 +3,33 @@
     <head>
         <title>{% block title %}{% endblock %}</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <style>
+            #sidebar {
+                position: fixed;
+                right: 10px;
+                top: 10px;
+                width: 200px;
+                border: 1px solid black;
+            }
+            #logout {
+                border-bottom: 1px solid black;
+            }
+            .aButton {
+                margin: 10px;
+            }
+        </style>
     </head>
     <body>
         <div class="container">
+            <div id = 'sidebar'>
+                    <div id = 'logout'>
+                        <p style = "margin:10px;">Logged in as abcdef1</p>
+                        <button class="btn btn-primary aButton">Click to logout</button>
+                    </div>
+                    <div id = 'back2Search'>
+                        <button class="btn btn-primary aButton">Go Back to Search</button>
+                    </div>
+            </div>
             {% block body %}
             {% endblock %}
         </div>

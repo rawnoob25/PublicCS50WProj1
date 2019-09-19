@@ -202,7 +202,9 @@ def basicSearch():
 def basicSearchPartial():
 	by = request.form['searchUsing']
 	val = request.form.get("value")
-	valPatt = '%'+val+'%'	
+	valPatt = '%'+val+'%'
+	if valPatt == '%%':
+		valPatt = ''	
 	if by == "Title":
 		if db.execute("SELECT title FROM books WHERE title LIKE :title", {"title": valPatt}).rowcount == 0:
 			return render_template("search.html", error="noMatch")
