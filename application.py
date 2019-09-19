@@ -200,7 +200,7 @@ def basicSearch():
 			return render_template("search.html", error="noMatch", user=user)		
 		else: 
 			books = db.execute("SELECT * FROM books WHERE author = :author", {"author": val}).fetchall()
-			return render_template("searchResults.html", books = books, user=users)
+			return render_template("searchResults.html", books = books, user=user)
 	else: #by == "IBSN"
 		if db.execute("SELECT title FROM books WHERE isbn = :isbn", {"isbn": val}).rowcount == 0:
 			return render_template("search.html", error="noMatch", user=user)	
