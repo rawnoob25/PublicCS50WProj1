@@ -251,11 +251,19 @@ def advancedSearchPartial():
 	titPatt = '%'+tit+'%'
 	autPatt = '%'+aut+'%'
 	isbPatt = '%'+isb+'%'
+	if titPatt == '%%':
+		titPatt = ''
+	if autPatt == '%%':
+		autPatt = ''
+	if isbPatt == '%%':
+		isbPatt = ''
+
 	if any_all == "Any":
 		if db.execute("SELECT title FROM books WHERE title LIKE :title OR author LIKE :author  OR isbn LIKE :isbn", {"title": titPatt, "author": autPatt, "isbn": isbPatt}).rowcount == 0:
 			return render_template("search.html", error="noMatch")
 		else:
 			books = db.execute("SELECT * FROM books WHERE title LIKE :title OR author LIKE :author  OR isbn LIKE :isbn", {"title": titPatt, "author": autPatt, "isbn": isbPatt}).fetchall()
+			print(books)
 			return render_template("searchResults.html", books = books)
 
 	else: # any_all == "All"
