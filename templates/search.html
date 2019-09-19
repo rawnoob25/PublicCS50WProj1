@@ -9,7 +9,7 @@
 	{% endif %}
 	<h1>Search for book(s)</h1>
 	<h2>Basic Search</h2>
-	<form name="basic_search" action="{{ url_for('basicSearch') }}"  method='post'>
+	<form name="basic_search" action="{{ url_for('basicSearchPartial') }}"  method='post'>
 	    <select name="searchUsing">
 	        <option value="Title">Title</option>
 	        <option value="Author">Author</option>
@@ -19,7 +19,7 @@
 	    <button type="submit">Search</button>
 	</form>
 	<h2>Advanced Search</h2>
-	<form name="advanced_search" action="{{ url_for('advancedSearch') }}"  method='post'>
+	<form name="advanced_search" action="{{ url_for('advancedSearchPartial') }}"  method='post'>
 		<div class="form-group">
 			<label for="selection">Include</label>
 			<select id="selection" name="any_all">

@@ -198,6 +198,30 @@ def basicSearch():
 			books = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": val}).fetchall()
 			return render_template("searchResults.html", books = books)
 
+@app.route("/basicSearchPartial", methods=["POST"])
+def basicSearchPartial():
+	by = request.form['searchUsing']
+	val = request.form.get("value")
+	valPatt = '%'+val+'%'	
+	if by == "Title":
+		if db.execute("SELECT title FROM books WHERE title LIKE :title", {"title": valPatt}).rowcount == 0:
+			return render_template("search.html", error="noMatch")
+		else:
+			books = db.execute("SELECT * FROM books WHERE title LIKE :title", {"title": valPatt}).fetchall()
+			return render_template("searchResults.html", books = books)
+	elif by == "Author":
+		if db.execute("SELECT title FROM books WHERE author LIKE :author", {"author": valPatt}).rowcount == 0:
+			return render_template("search.html", error="noMatch")		
+		else: 
+			books = db.execute("SELECT * FROM books WHERE author LIKE :author", {"author": valPatt}).fetchall()
+			return render_template("searchResults.html", books = books)
+	else: #by == "IBSN"
+		if db.execute("SELECT title FROM books WHERE isbn LIKE :isbn", {"isbn": valPatt}).rowcount == 0:
+			return render_template("search.html", error="noMatch")	
+		else: 
+			books = db.execute("SELECT * FROM books WHERE isbn LIKE :isbn", {"isbn": valPatt}).fetchall()
+			return render_template("searchResults.html", books = books)
+
 @app.route("/advancedSearch", methods=["POST"])
 def advancedSearch():
 	any_all = request.form['any_all']
@@ -216,6 +240,29 @@ def advancedSearch():
 			return render_template("search.html", error="noMatch")
 		else:
 			books = db.execute("SELECT * FROM books WHERE title = :title AND author = :author  AND isbn = :isbn", {"title": tit, "author": aut, "isbn":isb}).fetchall()
+			return render_template("searchResults.html", books = books)
+
+@app.route("/advancedSearchPartial", methods=["POST"])
+def advancedSearchPartial():
+	any_all = request.form['any_all']
+	tit = request.form.get("title")
+	aut = request.form.get("author")
+	isb = request.form.get("isbn")
+	titPatt = '%'+tit+'%'
+	autPatt = '%'+aut+'%'
+	isbPatt = '%'+isb+'%'
+	if any_all == "Any":
+		if db.execute("SELECT title FROM books WHERE title LIKE :title OR author LIKE :author  OR isbn LIKE :isbn", {"title": titPatt, "author": autPatt, "isbn": isbPatt}).rowcount == 0:
+			return render_template("search.html", error="noMatch")
+		else:
+			books = db.execute("SELECT * FROM books WHERE title LIKE :title OR author LIKE :author  OR isbn LIKE :isbn", {"title": titPatt, "author": autPatt, "isbn": isbPatt}).fetchall()
+			return render_template("searchResults.html", books = books)
+
+	else: # any_all == "All"
+		if db.execute("SELECT title FROM books WHERE title LIKE :title AND author LIKE :author  AND isbn LIKE :isbn", {"title": titPatt, "author": autPatt, "isbn": isbPatt}).rowcount == 0:
+			return render_template("search.html", error="noMatch")
+		else:
+			books = db.execute("SELECT * FROM books WHERE title LIKE :title AND author LIKE :author  AND isbn LIKE :isbn", {"title": titPatt, "author": autPatt, "isbn": isbPatt}).fetchall()
 			return render_template("searchResults.html", books = books)
 
 @app.route("/search/<isbn>", methods=["GET"])
