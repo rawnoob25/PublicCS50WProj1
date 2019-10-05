@@ -8,7 +8,7 @@ import re
 from flask import abort
 from flask import jsonify
 from werkzeug.exceptions import BadRequest
-
+from passlib.context import CryptContext
 
 app = Flask(__name__)
 
@@ -191,6 +191,7 @@ def tryDelete():
 	pw = request.form.get("pw")
 	if isOKLogin(un,pw) == "ok":
 		db.execute("DELETE FROM users WHERE username = :username AND password = :password", {"username": un, "password": pw})
+		db.execute("DELETE FROM users WHERE username = :username", {"username": un})
 		db.commit()
 		return render_template("accountDeleted.html")
 	else:

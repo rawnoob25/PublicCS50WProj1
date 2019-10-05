@@ -33,6 +33,9 @@
             #logout {
                 border-bottom: 1px solid black;
             }
+            #back2Search {
+                border-bottom: 1px solid black;
+            }
             .aButton {
                 margin: 10px;
             }                    
@@ -47,6 +50,9 @@
                     </div>
                     <div id = 'back2Search'>
                         <button class="btn btn-primary aButton" type="button" onclick="window.location.href='{{ url_for( 'search') }}';" method="post">Go Back to Search</button>
+                    </div>
+                    <div id = 'showYourReviews'>
+                        <button class="btn btn-primary aButton" onclick="window.location.href='{{ url_for( 'showReviews4User') }}';">See Reviews You've Left</button>
                     </div>
             </div>
             <h2>Matching books</h2>
