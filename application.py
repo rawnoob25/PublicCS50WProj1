@@ -8,7 +8,7 @@ import re
 from flask import abort
 from flask import jsonify
 from werkzeug.exceptions import BadRequest
-from passlib.context import CryptContext
+from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 
@@ -26,6 +26,7 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
 
+
 @app.route("/", methods=["GET","POST"])
 def index():
 	error = False
@@ -38,7 +39,15 @@ def isOKLogin(uname,pw):
 	# if db.execute("SELECT * FROM users WHERE username = :username AND password = :password", {"username": uname, "password": pw}).rowcount > 0:
 	# 	return True
 	# return False
-	if db.execute("SELECT * FROM users WHERE username = :username AND password = :password", {"username": uname, "password": pw}).rowcount > 0:
+	
+	# if db.execute("SELECT * FROM users WHERE username = :username AND password = :password", {"username": uname, "password": pwHash}).rowcount > 0:
+	# 	return "ok"
+	records = db.execute("SELECT * FROM users WHERE username = :username", {"username" : uname}).fetchall()
+	print(records)
+	val = records[0]["password"]
+	print(val)
+	print(check_password_hash(val, pw))
+	if check_password_hash(val, pw):
 		return "ok"
 	elif db.execute("SELECT * FROM users WHERE username = :username", {"username": uname}).rowcount > 0:
 		return "pwWrong"
@@ -174,7 +183,8 @@ def validateRegistration():
 	elif (not pwIsOK):
 		status = "Password is Invalid"
 		return render_template("register.html", status = status)
-	db.execute("INSERT INTO users (username, password) VALUES (:username, :password)", {"username":uname, "password":pw})
+	hashPW = generate_password_hash(pw)
+	db.execute("INSERT INTO users (username, password) VALUES (:username, :password)", {"username":uname, "password":hashPW})
 	db.commit()
 	return render_template("registrationSuccess.html", uname = uname)
 	
@@ -191,7 +201,7 @@ def tryDelete():
 	pw = request.form.get("pw")
 	if isOKLogin(un,pw) == "ok":
 		db.execute("DELETE FROM users WHERE username = :username AND password = :password", {"username": un, "password": pw})
-		db.execute("DELETE FROM users WHERE username = :username", {"username": un})
+		db.execute("DELETE FROM reviews WHERE username = :username", {"username": un})
 		db.commit()
 		return render_template("accountDeleted.html")
 	else:
@@ -331,7 +341,7 @@ def bookInfo(isbn):
 		print("type(reviews): "+str(type(reviews)))
 		print("ratings: "+str(ratings))
 		print("type(ratings): "+str(type(ratings)))
-		avgUserRating = sum(ratings)/len(ratings)
+		avgUserRating = round(sum(ratings)/len(ratings), 2)
 	else:
 		ratings = ""
 		reviews=""
