@@ -36,12 +36,6 @@ def index():
 
 #update later
 def isOKLogin(uname,pw):
-	# if db.execute("SELECT * FROM users WHERE username = :username AND password = :password", {"username": uname, "password": pw}).rowcount > 0:
-	# 	return True
-	# return False
-	
-	# if db.execute("SELECT * FROM users WHERE username = :username AND password = :password", {"username": uname, "password": pwHash}).rowcount > 0:
-	# 	return "ok"
 	records = db.execute("SELECT * FROM users WHERE username = :username", {"username" : uname}).fetchall()
 	print(records)
 	val = records[0]["password"]
@@ -58,10 +52,6 @@ def isOKLogin(uname,pw):
 def validateLogin():
 	uname = request.form.get("username")
 	pw = request.form.get("pw")
-	# if not isOKLogin(uname,pw):
-	# 	error = True
-	# 	return render_template("index.html", error = error)
-	# return render_template("search.html")
 	if isOKLogin(uname,pw) == "ok":
 		session["login"] = uname
 		user = session["login"]
@@ -79,11 +69,6 @@ def showReviews4User():
 	else:
 		reviews = db.execute("SELECT title, author, username, review, rating FROM reviews JOIN books ON reviews.isbn=books.isbn WHERE username = :username", {"username":un})
 		return render_template("reviews4User.html", reviews=reviews, user=un)
-# if db.execute("SELECT title FROM books WHERE title = :title OR author = :author  OR isbn = :isbn", {"title": tit, "author": aut, "isbn":isb}).rowcount == 0:
-# 	return render_template("search.html", error="noMatch", user=user)
-# else:
-# 	books = db.execute("SELECT * FROM books WHERE title = :title OR author = :author  OR isbn = :isbn", {"title": tit, "author": aut, "isbn":isb}).fetchall()
-# 	return render_template("searchResults.html", books = books, user=user)	
 
 @app.route("/search", methods=["POST","GET"])
 def search():
@@ -134,31 +119,7 @@ def isOKReg(uname,pw):
 	if not checkPW(pw):
 		pwOK=0
 	return (unameOK, pwOK)
-	# return True
 
-# while True:   
-#     if (len(password)<8): 
-#         flag = -1
-#         break
-#     elif not re.search("[a-z]", password): 
-#         flag = -1
-#         break
-#     elif not re.search("[A-Z]", password): 
-#         flag = -1
-#         break
-#     elif not re.search("[0-9]", password): 
-#         flag = -1
-#         break
-#     elif not re.search("[_@$]", password): 
-#         flag = -1
-#         break
-#     elif re.search("\s", password): 
-#         flag = -1
-#         break
-#     else: 
-#         flag = 0
-#         print("Valid Password") 
-#         break
 @app.route("/validateRegistration", methods=["POST"])
 def validateRegistration():
 	uname = request.form.get("uname_candidate")
@@ -168,9 +129,7 @@ def validateRegistration():
 	if db.execute("SELECT * FROM users WHERE username = :username", {"username": uname}).rowcount > 0:
 		status = "nameTaken"
 		return render_template("register.html", status = status)
-	# elif not isOKReg(uname,pw):
-	# 	status = "invalidReg"
-	# 	return render_template("register.html", status = status)
+
 	validity = isOKReg(uname, pw)
 	unameIsOK = validity[0]
 	pwIsOK = validity[1]
@@ -188,7 +147,6 @@ def validateRegistration():
 	db.commit()
 	return render_template("registrationSuccess.html", uname = uname)
 	
-		# db.execute("INSERT INTO books (isbn, title, author, year) VALUES (:isbn, :title, :author, :year)", {"isbn":isbn, "title":title, "author":author, "year":year})
 @app.route("/deleteAcct", methods=["POST"])
 def deleteAcct():
 	status=""
@@ -213,7 +171,6 @@ def basicSearch():
 	by = request.form['searchUsing']
 	val = request.form.get("value")
 	user = session['login']
-	# return render_template("searchResults.html", by = by, val = val)
 	if by == "Title":
 		if db.execute("SELECT title FROM books WHERE title = :title", {"title": val}).rowcount == 0:
 			return render_template("search.html", error="noMatch", user=user)
@@ -352,18 +309,7 @@ def bookInfo(isbn):
 		userLeftReview = True
 
 	user = session["login"]
-	# ratingsCt = ((obj['books'])[0])['ratings_count']
-	# avgRating = ((obj['books'])[0])['average_rating']
 	return render_template("bookInfo.html", book=book, ratingsCt=ratingsCt, avgRating=avgRating, reviews=reviews, avgUserRating=avgUserRating, userLeftReview=userLeftReview, user = user)
-    # # Make sure flight exists.
-    # flight = db.execute("SELECT * FROM flights WHERE id = :id", {"id": flight_id}).fetchone()
-    # if flight is None:
-    #     return render_template("error.html", message="No such flight.")
-
-    # # Get all passengers.
-    # passengers = db.execute("SELECT name FROM passengers WHERE flight_id = :flight_id",
-    #                         {"flight_id": flight_id}).fetchall()
-    # return render_template("flight.html", flight=flight, passengers=passengers)
 
 @app.route("/reviewAdded/<isbn>/<username>", methods=["POST"])
 def leaveReview(isbn, username):
@@ -394,27 +340,6 @@ def displayJSON(isbn):
 		"isbn": isbn, 
 		"ratings_count": ratings_count,
 		"average_score": average_score}
-	# message = {'status':200, 'message':'OK','scores':d}
 	resp = jsonify(d)
 	resp.status_code = 200
 	return resp
-	# 	
-#{
-#     "title": "Memory",
-#     "author": "Doug Lloyd",
-#     "year": 2015,
-#     "isbn": "1632168146",
-#     "review_count": 28,
-#     "average_score": 5.0
-# } 
-
-#d = {'left': 0.17037454, 'right': 0.82339555, '_unknown_': 0.0059609693}
-#	message = {
- #                            'status': 200,
- #                            'message': 'OK',
- #                            'scores': d 
- #                        }
- #                resp = jsonify(message)
- #                resp.status_code = 200
- #                print(resp)
- #                return resp
